@@ -1,0 +1,203 @@
+/* From JJ */
+body {
+    font-family: 'Raleway', sans-serif;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    /*font-family: 'Roboto', sans-serif;*/
+    font-weight: 300;
+}
+
+a:active, a:hover, a:focus {
+  color:#ED6062!important;
+}
+.logo {
+  max-width: 180px;
+  margin-top: -5px;
+}
+.card {
+  background-color: white;
+  position:relative;
+}
+.card-block {
+  padding: 0px 10px;
+}
+.card table {
+  margin-bottom: 0;
+}
+.holder {
+  position:relative;
+  margin-bottom:10px;
+}
+
+.thumbnail-title {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+
+  padding-left: 20px;
+
+  width: 100%;
+}
+.thumbnail-title:before {
+  position:absolute;
+  top: 5px;
+  left: -4px;
+  
+  content: "LIVE";
+  font-size: 8px;
+  color:white;
+  display: block;
+  background-color: #ED6062;
+  padding:0 6px;
+   -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+thumbnail-title-close {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+
+  background-color: rgba(255, 255, 255, 0.6);
+  color: black;
+}
+.thumbnail-title-close:before {
+  position:absolute;
+  bottom: 28px;
+  right: 0;
+
+  content: "X";
+  font-size: 8px;
+  color:white;
+  display: block;
+  background-color: #ED6062;
+  padding: 5px;
+  height: 20px;
+}
+
+.big-live{
+
+}
+.big-live:before {
+  content: "LIVE";
+  font-size: 10px;
+  color:white;
+  display: block;
+  background-color: #ED6062;
+  position:absolute;
+  font-weight: 300;
+  left:-3px;
+  top:3px;
+  padding:2px 8px;
+   -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.btn-xs {
+  background-color:#ED6062;
+  text-transform: uppercase;
+  border-radius:0;
+  border:none;
+}
+.btn-xs:hover, .btn-xs:active {
+  background-color:#DF5254;
+}
+
+
+
+/* Additional */
+.footer {
+    background-color: lightgray;
+}
+.icon-12 {
+    font-size: 12px;
+}
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+
+.float-right {
+    float: right;
+}
+
+.about-card-wide.mdl-card {
+    width: 550px;
+}
+.about-card-wide > .mdl-card__title {
+  color: white;
+  height: 200px;
+  background: url('https://technoindiauniversity.ac.in/research1/tiurobo/images/robotics.jpg') center / cover;
+}
+.about-card-wide > .mdl-card__menu {
+  color: #fff;
+}
+
+.about-dialog-position {
+    /*position: fixed;*/
+    top: 100px;
+}
+.about-dialog {
+    height: 200px;
+    background: url('https://technoindiauniversity.ac.in/research1/tiurobo/images/robotics.jpg') center / cover;
+}
+
+.text-wrapper:before {
+  position: absolute;
+  top: 0;
+  left: -10px;
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 10px 0;
+  border-color: transparent #ED6062 transparent transparent;
+}
+.text-wrapper {
+  position: relative;
+  width: 90%;
+  margin-left: 18px;
+  margin-top: 15px;
+
+}
+.circle-wrapper, .text-wrapper {
+  background: #ED6062;
+  padding:10px;
+  float:left;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+
+.static-modal .modal{
+    position:relative;
+    /*top:auto;*/
+    /*right:auto;
+    left:auto;*/
+    /*bottom:auto;*/
+    /*z-index:1;*/
+    display:block;
+    width: 100%;
+}
+
+.static-modal .modal-dialog {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.alignCenter {
+    position:relative;
+    top:auto;
+    right:auto;
+    left:auto;
+    bottom:auto;
+    z-index:1;
+    display:block;
+}
