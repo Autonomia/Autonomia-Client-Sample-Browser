@@ -10,15 +10,19 @@ import { Provider } from 'react-redux'
 import { store } from './components/Store'
 import Header from './components/Header'
 
-import MainPage from './pages/MainPage'
+import Home from './pages/Home'
 import About from './pages/About'
 
 export default class AppLayout extends React.Component {
     render() {
         return (
-            <div>
+            <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
                 <Header />
-                {this.props.children}
+                <main class="mdl-layout__content">
+                    <div class="page-content">
+                        {this.props.children}
+                    </div>
+                </main>
             </div>
         )
     }
@@ -28,8 +32,8 @@ const App = () => (
     <Provider store={store}>
         <Router history={hashHistory}>
             <Route path="/" component={AppLayout}>
-                <IndexRoute component={MainPage} />
-                <Route path='MainPage' component={MainPage} />
+                <IndexRoute component={Home} />
+                <Route path='Home' component={Home} />
                 <Route path='About' component={About} />
             </Route>
         </Router>

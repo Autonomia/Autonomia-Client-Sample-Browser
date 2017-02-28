@@ -20,7 +20,7 @@ import { DevicesReducer, DevicesReducerMessages } from "../reducers/DevicesReduc
         Devices: store.DevicesReducer
     };
 })
-export default class MainPage extends React.Component {
+export default class Home extends React.Component {
     constructor() {
         super();
 

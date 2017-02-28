@@ -1,10 +1,11 @@
 
 // React
 import React from "react"
+import Link from "react-router"
 
 // Bootstrap
-import { Navbar, Nav, NavItem } from "react-bootstrap"
-import { LinkContainer } from "react-router-bootstrap"
+// import { Navbar, Nav, NavItem } from "react-bootstrap"
+// import { LinkContainer } from "react-router-bootstrap"
 
 const style = {
     position: "absolute",
@@ -13,23 +14,17 @@ const style = {
     height: "70px"
 };
 
-const headerStyle = {
-    fontFamily: "Verdana",
-    fontSize: "30px"
-};
-
 const Header = () => (
-    <Navbar>
-        <Navbar.Header>
-            <Navbar.Brand>
-                <img src="images/logo.png" style={style} />
-            </Navbar.Brand>
-        </Navbar.Header>
-        <Nav pullRight>
-            <NavItem><LinkContainer to="MainPage"><span>Main Page</span></LinkContainer></NavItem>
-            <NavItem><LinkContainer to="About"><span>About</span></LinkContainer></NavItem>
-        </Nav>
-    </Navbar>
+    <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title"><img src="images/logo.png" style={style} /></span>
+            <div class="mdl-layout-spacer"></div>
+            <nav class="mdl-navigation mdl-layout--large-screen-only">
+                <a class="mdl-navigation__link" href=""><Link to="Home"><span>Home</span></Link></a>
+                <a class="mdl-navigation__link" href=""><Link to="About"><span>About</span></Link></a>
+            </nav>
+        </div>
+    </header>
 )
 
 module.exports = Header
