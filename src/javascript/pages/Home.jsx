@@ -2,9 +2,9 @@
 // React
 import React from "react"
 import { connect } from "react-redux"
-import { Grid, Row, Col, Modal } from 'react-bootstrap'
 import JSONTree from 'react-json-tree'
 
+import { Grid, Cell, Card, CardTitle, CardText, CardActions} from "react-mdl"
 
 // Autonomia
 /// <reference path="../../../../Autonomia-Helpers-JavaScript/Autonomia-Helpers-JavaScript.d.ts" />
@@ -28,16 +28,21 @@ export default class Home extends React.Component {
 
         this.state = {
             VideoStream: "",
+            VideoStreamWidth: "100%",
+            VideoStreamHeight: "500px",
 
             DeviceSetup: "",
             DeviceStatus: "",
-            DeviceMessages: "",
+            DeviceMessages: {},
             DeviceErrors: "",
 
             DeviceMessagesTimeStamp: ""
         };
 
         this._device = null;
+
+        this._videoContanerId = Autonomia.Helpers.NewGuid();
+        this._videoId = Autonomia.Helpers.NewGuid();
 
         this._autonomiaConfig = new Autonomia.Config();
         this._autonomiaConfig.AppKey = "d0353b75b8fa61889d19";
@@ -65,6 +70,8 @@ export default class Home extends React.Component {
 
     // Autonomia Device Events
     DeviceConnected(deviceId) {
+        var thisRef = this;
+
         Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
             "Device " + deviceId + " Connected"
         ));
@@ -72,8 +79,22 @@ export default class Home extends React.Component {
         this.setState({
             ...this.state,
             VideoStream: this._device.Cameras[0].StreamUrl,
-            DeviceStatus: ""+(new Date()).toLocaleString()+" | " + "Connected"
+            DeviceStatus: "" + (new Date()).toLocaleString() + " | " + "Connected",
+            DeviceErrors: ""
         });
+
+        setInterval(() => {
+            var elementWidth = document.getElementById(thisRef._videoContanerId).offsetWidth;
+
+            var videoWidth = elementWidth;
+            var videoHeight = Math.round((videoWidth/16)*9);
+
+            thisRef.setState({
+                ...thisRef.state, 
+                VideoStreamWidth: videoWidth + "px",
+                VideoStreamHeight: videoHeight + "px"
+            });
+        }, 1000);
     }
     DeviceDisconnected(messageObject) {
         Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
@@ -103,7 +124,7 @@ export default class Home extends React.Component {
         this.setState({
             ...this.state, 
             DeviceMessages: message,
-            DeviceMessagesTimeStamp: "Updated @ " + (new Date()).toLocaleString()
+            DeviceMessagesTimeStamp: (new Date()).toLocaleString()
         });
     }
     DeviceInvalidMessage(data) {
@@ -117,7 +138,7 @@ export default class Home extends React.Component {
         });
     }
 
-    // @ React Override
+    // @ React Overrides
     render() {
         var thisRef = this;
 
@@ -144,69 +165,68 @@ export default class Home extends React.Component {
 
         return (
             <Grid>
-                <Row>
-                    <Col md={6}>
-                        <Row>
+                <Cell col={6} id={this._videoContanerId}>
+                    <Card shadow={10} style={{width: "100%"}}>
+                        <CardText style={{padding: "0", width: "100%"}}>
                             <VideoPlayer
-                                class="alignCenter"
-                                width="100%"
-                                height="400px"
+                                id={this._videoId}
+                                width={this.state.VideoStreamWidth}
+                                height={this.state.VideoStreamHeight}
                                 rtmp={this.state.VideoStream} />
-                        </Row>
-                        <Row>
-                            <div class="static-modal">
-                            <Modal.Dialog>
-                                <Modal.Header>
-                                    <Modal.Title>Setup</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body>
-                                    <pre>{this.state.DeviceSetup}</pre>
-                                </Modal.Body>
-                            </Modal.Dialog>
-                            </div>
+                        </CardText>
+                    </Card>
+                    
+                    <br/>
+                    <Card shadow={6} style={{width: "100%"}}>
+                        <CardTitle>Setup</CardTitle>
+                        <CardText style={{fontSize: "1.3em", lineHeight: "1.3em"}}>
+                            <pre>{this.state.DeviceSetup}</pre>
+                        </CardText>
+                    </Card>
 
-                            <div class="static-modal">
-                            <Modal.Dialog>
-                                <Modal.Header>
-                                    <Modal.Title>Status</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body style={{color: "blue"}}>
-                                    {this.state.DeviceStatus}
-                                </Modal.Body>
-                            </Modal.Dialog>
-                            </div>
+                    <br/>
+                    <Card shadow={6} style={{width: "100%"}}>
+                        <CardTitle>Status</CardTitle>
+                        <CardText style={{fontSize: "1.5em", lineHeight: "1.2em", color: "blue"}}>
+                            {this.state.DeviceStatus}
+                        </CardText>
+                    </Card>
 
-                            <div class="static-modal">
-                            <Modal.Dialog>
-                                <Modal.Header>
-                                    <Modal.Title>Errors</Modal.Title>
-                                </Modal.Header>
-                                <Modal.Body style={{color: "red"}}>
-                                    {this.state.DeviceErrors}
-                                </Modal.Body>
-                            </Modal.Dialog>
-                            </div>
-                        </Row>
-                    </Col>
-                    <Col md={6}>
-                        <div class="static-modal">
-                        <Modal.Dialog>
-                            <Modal.Header>
-                                <Modal.Title>Messages</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <div>{this.state.DeviceMessagesTimeStamp}</div>
-                                <JSONTree data={this.state.DeviceMessages} theme={theme} />
-                            </Modal.Body>
-                        </Modal.Dialog>
-                        </div>
-                    </Col>
-                </Row>
+                    <br/>
+                    <Card shadow={6} style={{width: "100%"}}>
+                        <CardTitle>Errors</CardTitle>
+                        <CardText style={{fontSize: "1.5em", lineHeight: "1.2em", color: "red"}}>
+                            {this.state.DeviceErrors}
+                        </CardText>
+                    </Card>
+                </Cell>
+                <Cell col={6}>
+                    <Card shadow={6} style={{width: "100%", height: "100%"}}>
+                        <CardTitle>
+                            Messages 
+                        </CardTitle>
+                        <CardText>
+                            <JSONTree 
+                            data={this.state.DeviceMessages} 
+                            theme={{
+                                extend: theme,
+                                valueLabel: {
+                                    fontSize: "1.8em"
+                                },
+                                nestedNodeLabel: {
+                                     fontSize: "1.8em"
+                                }   
+                            }}></JSONTree>
+                        </CardText>
+                        <CardActions border>
+                            Updated &nbsp; @ &nbsp; {this.state.DeviceMessagesTimeStamp}
+                        </CardActions>
+                    </Card>
+                </Cell>
             </Grid>
         )
     }
 
-    // @ React Override
     componentDidMount() {
         var thisRef = this;
 
@@ -216,7 +236,7 @@ export default class Home extends React.Component {
             .This((done) => {
                 this.setState({
                     ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + ""+(new Date()).toLocaleString()+" | " + "Connect()"
+                    DeviceSetup: this.state.DeviceSetup + "" + (new Date()).toLocaleString() + " | " + "Connect()"
                 });
 
                 thisRef._autonomia.Connect(done);
@@ -224,7 +244,7 @@ export default class Home extends React.Component {
             .Then((done) => {
                 this.setState({
                     ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n"+(new Date()).toLocaleString()+" | " + "GetDevices()"
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetDevices()"
                 });
 
                 thisRef._autonomia.GetDevices(done, foundDevices);
@@ -249,7 +269,7 @@ export default class Home extends React.Component {
 
                 this.setState({
                     ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n"+(new Date()).toLocaleString()+" | " + "GetNotificationsForDevices([" + JSON.stringify(thisRef._device.Id) + "])"
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetNotificationsForDevices([" + JSON.stringify(thisRef._device.Id) + "])"
                 });
 
                 thisRef._autonomia.GetNotificationsForDevices([thisRef._device]);
@@ -257,7 +277,7 @@ export default class Home extends React.Component {
             .OnError((error) => {
                 this.setState({
                     ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n"+(new Date()).toLocaleString()+" | " + "OnError()" + error
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "OnError()" + error
                 });
 
                 Logging.Console().Log(new Logging.LogEntity(

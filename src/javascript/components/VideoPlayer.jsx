@@ -59,7 +59,11 @@ export default class VideoPlayer extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.rtmp !== nextProps.rtmp;
+        return (
+            this.props.rtmp !== nextProps.rtmp
+            || this.props.width !== nextProps.width
+            || this.props.height !== nextProps.height
+        );
     }
 
     componentDidMount() {
