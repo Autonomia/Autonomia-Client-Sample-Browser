@@ -17,6 +17,7 @@ import Header from './components/Header'
 
 import Home from './pages/Home'
 import About from './pages/About'
+import Config from './pages/Config'
 
 export default class AppLayout extends React.Component {
     render() {
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/" component={AppLayout}>
                 <IndexRoute component={Home} />
                 <Route path='Home' component={Home} />
+                <Route path='Config' component={Config} />
                 <Route path='About' component={About} />
             </Route>
         </Router>

@@ -1,6 +1,6 @@
 
-import React from 'react'
-import { Grid, Cell, Card, CardTitle, CardText, CardActions, CardMenu, Button, IconButton, FABButton, Icon } from "react-mdl"
+import React from "react"
+import { Grid, Cell, Card, CardTitle, CardText, CardActions, CardMenu, Button, FABButton, Icon } from "react-mdl"
 
 const contentStyle = {
     height: "500px",
@@ -14,6 +14,8 @@ const contentStyle = {
 export default class About extends React.Component {
 
     // @ Helpers
+    // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
     shareClicked() {
         window.open("https://twitter.com/AutonomiaIO", "_blank");
     }
@@ -21,7 +23,9 @@ export default class About extends React.Component {
         window.open("https://developer.autonomia.io", "_blank");
     }
 
-    // @ React Override
+    // @ React Overrides
+    // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
     render() {
         return (
             <div>

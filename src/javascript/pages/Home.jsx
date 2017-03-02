@@ -2,18 +2,19 @@
 // React
 import React from "react"
 import { connect } from "react-redux"
-import JSONTree from 'react-json-tree'
-
+import JSONTree from "react-json-tree"
+import { hashHistory } from "react-router"
 import { Grid, Cell, Card, CardTitle, CardText, CardActions} from "react-mdl"
 
 // Autonomia
-/// <reference path="../../../../Autonomia-Helpers-JavaScript/Autonomia-Helpers-JavaScript.d.ts" />
-/// <reference path="../../../../Autonomia-REST-JavaScript/Autonomia-REST-JavaScript.d.ts" />
+// / <reference path="../../../../Autonomia-Helpers-JavaScript/Autonomia-Helpers-JavaScript.d.ts" />
+// / <reference path="../../../../Autonomia-REST-JavaScript/Autonomia-REST-JavaScript.d.ts" />
 let Logging = Autonomia.Helpers.Logging;
 
 // App
 import VideoPlayer from "../components/VideoPlayer"
 import { DevicesReducer, DevicesReducerMessages } from "../reducers/DevicesReducer"
+import { Globals } from "../components/Globals"
 
 @connect((store) => {
     return {
@@ -21,54 +22,10 @@ import { DevicesReducer, DevicesReducerMessages } from "../reducers/DevicesReduc
     };
 })
 export default class Home extends React.Component {
-    constructor() {
-        super();
 
-        var thisRef = this;
+    // @ Autonomia Device Events
+    // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
-        this.state = {
-            VideoStream: "",
-            VideoStreamWidth: "100%",
-            VideoStreamHeight: "500px",
-
-            DeviceSetup: "",
-            DeviceStatus: "",
-            DeviceMessages: {},
-            DeviceErrors: "",
-
-            DeviceMessagesTimeStamp: ""
-        };
-
-        this._device = null;
-
-        this._videoContanerId = Autonomia.Helpers.NewGuid();
-        this._videoId = Autonomia.Helpers.NewGuid();
-
-        this._autonomiaConfig = new Autonomia.Config();
-        this._autonomiaConfig.AppKey = "d0353b75b8fa61889d19";
-        this._autonomiaConfig.AppSecret = "f4f51e1e6125dcc873e9";
-        this._autonomiaConfig.Server = "api.vederly.com";
-
-        this._autonomia = new Autonomia.Api(this._autonomiaConfig);
-
-        this._autonomia.Events.DeviceConnected.OnHappen((deviceId) => {
-            thisRef.DeviceConnected(deviceId);
-        });
-        this._autonomia.Events.DeviceDisconnected.OnHappen((messageObject) => {
-            thisRef.DeviceDisconnected(messageObject);
-        });
-        this._autonomia.Events.DeviceConnectionError.OnHappen((messageObject) => {
-            thisRef.DeviceConnectionError(messageObject.DeviceId, messageObject.Error);
-        });
-        this._autonomia.Events.DeviceMessage.OnHappen((messageObject) => {
-            thisRef.DeviceMessage(messageObject.DeviceId, messageObject.Message);
-        });
-        this._autonomia.Events.DeviceInvalidMessage.OnHappen((data) => {
-            thisRef.DeviceInvalidMessage(data);
-        });
-    }
-
-    // Autonomia Device Events
     DeviceConnected(deviceId) {
         var thisRef = this;
 
@@ -139,6 +96,94 @@ export default class Home extends React.Component {
     }
 
     // @ React Overrides
+    // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
+    constructor() {
+        super();
+
+        this.state = {
+            VideoStream: "",
+            VideoStreamWidth: "100%",
+            VideoStreamHeight: "500px",
+
+            DeviceSetup: "",
+            DeviceStatus: "",
+            DeviceMessages: {},
+            DeviceErrors: "",
+
+            DeviceMessagesTimeStamp: ""
+        };
+
+        var settingsContainer = {};
+        let settings = new Autonomia.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
+
+        Autonomia.Helpers.Tasks.Run()
+            .This((done) => {
+                settings.Read(settingsContainer, done);
+            })
+            .Then((done) => {
+                if (
+                    Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data)
+                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.AppKey)
+                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.AppSecret)
+                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.Server)
+                ) {
+                    setTimeout(()=>{
+                        done.abort();
+                    },0);
+
+                    // This will redirect to the "Config" page
+                    hashHistory.push("/Config");
+                }
+            })
+            .Then((done) => {
+                constructorHelper(settings);
+                done();
+            })
+            .OnError((error) => {
+                Logging.Console().Log(new Logging.LogEntity(
+                    Logging.LogType.Error,
+                    error
+                ));
+            });
+    }
+
+    constructorHelper(settings) {
+
+        // If we get here means we have settings
+
+        var thisRef = this;
+
+
+        this._device = null;
+
+        this._videoContanerId = Autonomia.Helpers.NewGuid();
+        this._videoId = Autonomia.Helpers.NewGuid();
+
+        this._autonomiaConfig = new Autonomia.Config();
+        this._autonomiaConfig.AppKey = settings.AppKey;
+        this._autonomiaConfig.AppSecret = settings.AppSecret;
+        this._autonomiaConfig.Server = settings.Server;
+
+        this._autonomia = new Autonomia.Api(this._autonomiaConfig);
+
+        this._autonomia.Events.DeviceConnected.OnHappen((deviceId) => {
+            thisRef.DeviceConnected(deviceId);
+        });
+        this._autonomia.Events.DeviceDisconnected.OnHappen((messageObject) => {
+            thisRef.DeviceDisconnected(messageObject);
+        });
+        this._autonomia.Events.DeviceConnectionError.OnHappen((messageObject) => {
+            thisRef.DeviceConnectionError(messageObject.DeviceId, messageObject.Error);
+        });
+        this._autonomia.Events.DeviceMessage.OnHappen((messageObject) => {
+            thisRef.DeviceMessage(messageObject.DeviceId, messageObject.Message);
+        });
+        this._autonomia.Events.DeviceInvalidMessage.OnHappen((data) => {
+            thisRef.DeviceInvalidMessage(data);
+        });
+    }
+
     render() {
         var thisRef = this;
 
