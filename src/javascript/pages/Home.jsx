@@ -101,6 +101,8 @@ export default class Home extends React.Component {
     constructor() {
         super();
 
+        var thisRef = this;
+
         this.state = {
             VideoStream: "",
             VideoStreamWidth: "100%",
@@ -113,6 +115,12 @@ export default class Home extends React.Component {
 
             DeviceMessagesTimeStamp: ""
         };
+
+        this.readSettings();
+    }
+
+    readSettings() {
+        var thisRef = this;
 
         var settingsContainer = {};
         let settings = new Autonomia.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
@@ -128,16 +136,19 @@ export default class Home extends React.Component {
                     || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.AppSecret)
                     || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.Server)
                 ) {
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         done.abort();
                     },0);
 
                     // This will redirect to the "Config" page
                     hashHistory.push("/Config");
                 }
+                else {
+                    done();
+                }
             })
             .Then((done) => {
-                constructorHelper(settings);
+                thisRef.connectToAutonomia(settingsContainer.data);
                 done();
             })
             .OnError((error) => {
@@ -148,12 +159,8 @@ export default class Home extends React.Component {
             });
     }
 
-    constructorHelper(settings) {
-
-        // If we get here means we have settings
-
+    connectToAutonomia(settings) {
         var thisRef = this;
-
 
         this._device = null;
 
@@ -182,6 +189,63 @@ export default class Home extends React.Component {
         this._autonomia.Events.DeviceInvalidMessage.OnHappen((data) => {
             thisRef.DeviceInvalidMessage(data);
         });
+
+
+        var foundDevices = [];
+
+        Autonomia.Helpers.Tasks.Run()
+            .This((done) => {
+                this.setState({
+                    ...this.state, 
+                    DeviceSetup: this.state.DeviceSetup + "" + (new Date()).toLocaleString() + " | " + "Connect()"
+                });
+
+                thisRef._autonomia.Connect(done);
+            })
+            .Then((done) => {
+                this.setState({
+                    ...this.state, 
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetDevices()"
+                });
+
+                thisRef._autonomia.GetDevices(done, foundDevices);
+            })
+            .Then((done) => {
+                Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
+                    "Devices Found:"
+                ));
+
+                foundDevices.forEach((device) => {
+                    Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
+                        "    Id: " + device.Id + ", Type: " + device.Type + ", IsConnected: " + device.IsConnected
+                    ));
+                });
+
+                // Pick One
+                foundDevices.forEach((device) => {
+                    if (device.Id === "70AFEE092C5E1") {
+                        thisRef._device = device;
+                    }
+                });
+
+                this.setState({
+                    ...this.state, 
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetNotificationsForDevices([" + JSON.stringify(thisRef._device.Id) + "])"
+                });
+
+                thisRef._autonomia.GetNotificationsForDevices([thisRef._device]);
+            })
+            .OnError((error) => {
+                this.setState({
+                    ...this.state, 
+                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "OnError()" + error
+                });
+
+                Logging.Console().Log(new Logging.LogEntity(
+                    Logging.LogType.Error,
+                    error
+                ));
+            });
     }
 
     render() {
@@ -270,65 +334,5 @@ export default class Home extends React.Component {
                 </Cell>
             </Grid>
         )
-    }
-
-    componentDidMount() {
-        var thisRef = this;
-
-        var foundDevices = [];
-
-        Autonomia.Helpers.Tasks.Run()
-            .This((done) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "" + (new Date()).toLocaleString() + " | " + "Connect()"
-                });
-
-                thisRef._autonomia.Connect(done);
-            })
-            .Then((done) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetDevices()"
-                });
-
-                thisRef._autonomia.GetDevices(done, foundDevices);
-            })
-            .Then((done) => {
-                Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-                    "Devices Found:"
-                ));
-
-                foundDevices.forEach((device) => {
-                    Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-                        "    Id: " + device.Id + ", Type: " + device.Type + ", IsConnected: " + device.IsConnected
-                    ));
-                });
-
-                // Pick One
-                foundDevices.forEach((device) => {
-                    if (device.Id === "70AFEE092C5E1") {
-                        thisRef._device = device;
-                    }
-                });
-
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetNotificationsForDevices([" + JSON.stringify(thisRef._device.Id) + "])"
-                });
-
-                thisRef._autonomia.GetNotificationsForDevices([thisRef._device]);
-            })
-            .OnError((error) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "OnError()" + error
-                });
-
-                Logging.Console().Log(new Logging.LogEntity(
-                    Logging.LogType.Error,
-                    error
-                ));
-            });
     }
 }
