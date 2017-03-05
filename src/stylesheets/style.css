@@ -4,3 +4,8 @@ body {
     overflow-y: hidden;
     font-weight: 300;
 }
+
+.status-icon {
+    width: 32px;
+    height: 32px;
+}

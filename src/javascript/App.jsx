@@ -12,12 +12,13 @@ import "react-mdl/extra/material.js"
 import { Layout, Content } from "react-mdl"
 
 // App
-import { store } from './components/Store'
+// import { store } from './components/Store'
 import Header from './components/Header'
 
 import Home from './pages/Home'
 import About from './pages/About'
 import Config from './pages/Config'
+import VideoUrlTest from './pages/VideoUrlTest'
 
 export default class AppLayout extends React.Component {
     render() {
@@ -33,16 +34,15 @@ export default class AppLayout extends React.Component {
 }
 
 const App = () => (
-    <Provider store={store}>
-        <Router history={hashHistory}>
-            <Route path="/" component={AppLayout}>
-                <IndexRoute component={Home} />
-                <Route path='Home' component={Home} />
-                <Route path='Config' component={Config} />
-                <Route path='About' component={About} />
-            </Route>
-        </Router>
-    </Provider>
+    <Router history={hashHistory}>
+        <Route path="/" component={AppLayout}>
+            <IndexRoute component={Home} />
+            <Route path='Home' component={Home} />
+            <Route path='Config' component={Config} />
+            <Route path='About' component={About} />
+            <Route path='VideoUrlTest' component={VideoUrlTest} />
+        </Route>
+    </Router>
 )
 
 ReactDOM.render(

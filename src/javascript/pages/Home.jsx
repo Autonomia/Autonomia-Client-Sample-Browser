@@ -4,43 +4,49 @@ import React from "react"
 import { connect } from "react-redux"
 import JSONTree from "react-json-tree"
 import { hashHistory } from "react-router"
-import { Grid, Cell, Card, CardTitle, CardText, CardActions} from "react-mdl"
+import { Grid, Cell,
+    Card, CardTitle, CardText, CardActions, 
+    List, ListItem, ListItemContent, ListItemAction,
+    DataTable, TableHeader,
+    Checkbox, Radio, Switch, IconButton, Button, Icon
+} from "react-mdl"
+
 
 // Autonomia
-// / <reference path="../../../../Autonomia-Helpers-JavaScript/Autonomia-Helpers-JavaScript.d.ts" />
-// / <reference path="../../../../Autonomia-REST-JavaScript/Autonomia-REST-JavaScript.d.ts" />
 let Logging = Autonomia.Helpers.Logging;
 
 // App
 import VideoPlayer from "../components/VideoPlayer"
-import { DevicesReducer, DevicesReducerMessages } from "../reducers/DevicesReducer"
 import { Globals } from "../components/Globals"
 
-@connect((store) => {
-    return {
-        Devices: store.DevicesReducer
-    };
-})
 export default class Home extends React.Component {
 
-    // @ Autonomia Device Events
+    // @ Helpers
     // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
-    DeviceConnected(deviceId) {
+    ShowPropertiesForDevice(deviceId) {
         var thisRef = this;
 
-        Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-            "Device " + deviceId + " Connected"
-        ));
-
-        this.setState({
-            ...this.state,
-            VideoStream: this._device.Cameras[0].StreamUrl,
-            DeviceStatus: "" + (new Date()).toLocaleString() + " | " + "Connected",
-            DeviceErrors: ""
+        thisRef.state.Devices.forEach((device) => {
+            if (device.Id === deviceId) {
+                thisRef.ActiveDevice = Autonomia.Helpers.CloneObject(device);
+            }
         });
 
-        setInterval(() => {
+        var videoUrl = thisRef.ActiveDevice.Cameras[0].StreamUrl;
+        var lastFrameUrl = thisRef.ActiveDevice.Cameras[0].LastPicUrl;
+        thisRef.setState({
+            ...thisRef.state,
+            VideoStream: videoUrl,
+            LastPictureUrl: lastFrameUrl,
+            Logs: [{
+                When: (new Date()).toLocaleString(),
+                What: "Displaying: " + thisRef.ActiveDevice.Id + ", Video: " + videoUrl + ", Last Frame: " + lastFrameUrl
+            }].concat(thisRef.state.Logs),
+        });
+
+        clearInterval(thisRef._intervalId);
+        thisRef._intervalId = setInterval(() => {
             var elementWidth = document.getElementById(thisRef._videoContanerId).offsetWidth;
 
             var videoWidth = elementWidth;
@@ -53,47 +59,84 @@ export default class Home extends React.Component {
             });
         }, 1000);
     }
-    DeviceDisconnected(messageObject) {
-        Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-            "Device " + messageObject.DeviceId + " Disconnected"
-        ));
 
-        this.setState({
-            ...this.state, 
-            DeviceStatus: ""+(new Date()).toLocaleString()+" | " + "Disconnected. Reason: " + messageObject.Reason
+
+    // @ Autonomia Device Events
+    // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
+
+    DeviceConnected(deviceId) {
+        var thisRef = this;
+
+        var devicesClone = Autonomia.Helpers.CloneObject(thisRef.state.Devices);
+        devicesClone.forEach((device) => {
+            if (device.Id === deviceId) {
+                device.IsConnected = true;
+            }
+        });
+
+        thisRef.setState({
+            ...thisRef.state,
+            Logs: [{
+                When: (new Date()).toLocaleString(),
+                What: "Connected: " + deviceId
+            }].concat(thisRef.state.Logs),
+            Devices: devicesClone
+        });
+    }
+    DeviceDisconnected(messageObject) {
+        var thisRef = this;
+
+        var devicesClone = Autonomia.Helpers.CloneObject(thisRef.state.Devices);
+        devicesClone.forEach((device) => {
+            if (device.Id === messageObject.DeviceId) {
+                device.IsConnected = false;
+            }
+        });
+
+        thisRef.setState({
+            ...thisRef.state,
+            Logs: [{
+                When: (new Date()).toLocaleString(),
+                What: "Disconnected: " + messageObject.DeviceId + ", Reason: " + messageObject.Reason
+            }].concat(thisRef.state.Logs),
+
+            Devices: devicesClone
         });
     }
     DeviceConnectionError(deviceId, error) {
-        Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Error,
-            "Connection Error " + deviceId + " -> " + error
-        ));
+        var thisRef = this;
 
-        this.setState({
-            ...this.state, 
-            DeviceErrors: ""+(new Date()).toLocaleString()+" | " + error
+        thisRef.setState({
+            ...thisRef.state,
+            Logs: [{
+                When: (new Date()).toLocaleString(),
+                What: "ConnectionError: " + deviceId + " -> " + error
+            }].concat(thisRef.state.Logs)
         });
     }
     DeviceMessage(deviceId, message) {
-        Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-            "Message From " + deviceId + " -> " + JSON.stringify(message)
-        ));
+        var thisRef = this;
 
-        this.setState({
-            ...this.state, 
-            DeviceMessages: message,
-            DeviceMessagesTimeStamp: (new Date()).toLocaleString()
-        });
+        if (thisRef.ActiveDevice.Id === deviceId) {
+            this.setState({
+                ...this.state, 
+                DeviceMessages: message,
+                DeviceMessagesTimeStamp: (new Date()).toLocaleString()
+            });
+        }
     }
     DeviceInvalidMessage(data) {
-        Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-            "Ivalid Message -> " + data
-        ));
+        var thisRef = this;
 
-        this.setState({
+        thisRef.setState({
             ...this.state, 
-            DeviceErrors: ""+(new Date()).toLocaleString()+" | " + data
+            Logs: [{
+                When: (new Date()).toLocaleString(),
+                What: "Ivalid Message -> " + data
+            }].concat(thisRef.state.Logs)
         });
     }
+
 
     // @ React Overrides
     // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
@@ -103,18 +146,31 @@ export default class Home extends React.Component {
 
         var thisRef = this;
 
+        // this.logger = new CustomLogger((log, logEntity) => {
+        //     this.setState({
+        //         ...this.state, 
+        //         Log: this.state.Log + "\r\n" + (new Date()).toLocaleString() + " | " + logEntity.Type + log
+        //     });
+        // });
+
         this.state = {
             VideoStream: "",
             VideoStreamWidth: "100%",
             VideoStreamHeight: "500px",
 
-            DeviceSetup: "",
-            DeviceStatus: "",
-            DeviceMessages: {},
-            DeviceErrors: "",
+            LastPictureUrl: "",
 
-            DeviceMessagesTimeStamp: ""
+            DeviceId: "",
+            Logs: [],
+            DeviceMessages: {},
+
+            DeviceMessagesTimeStamp: "",
+
+            Devices: []
         };
+
+        this._intervalId = null;
+        this.ActiveDevice = {};
 
         this.readSettings();
     }
@@ -152,7 +208,7 @@ export default class Home extends React.Component {
                 done();
             })
             .OnError((error) => {
-                Logging.Console().Log(new Logging.LogEntity(
+                thisRef.logger.Log(new Logging.LogEntity(
                     Logging.LogType.Error,
                     error
                 ));
@@ -161,8 +217,6 @@ export default class Home extends React.Component {
 
     connectToAutonomia(settings) {
         var thisRef = this;
-
-        this._device = null;
 
         this._videoContanerId = Autonomia.Helpers.NewGuid();
         this._videoId = Autonomia.Helpers.NewGuid();
@@ -190,61 +244,61 @@ export default class Home extends React.Component {
             thisRef.DeviceInvalidMessage(data);
         });
 
-
         var foundDevices = [];
-
         Autonomia.Helpers.Tasks.Run()
             .This((done) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "" + (new Date()).toLocaleString() + " | " + "Connect()"
+                thisRef.setState({
+                    ...thisRef.state, 
+                    Logs: [{
+                        When: (new Date()).toLocaleString(),
+                        What: "Connect()"
+                    }].concat(thisRef.state.Logs)
                 });
 
                 thisRef._autonomia.Connect(done);
             })
             .Then((done) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetDevices()"
+                thisRef.setState({
+                    ...thisRef.state, 
+                    Logs: [{
+                        When: (new Date()).toLocaleString(),
+                        What: "GetDevices()"
+                    }].concat(thisRef.state.Logs),
                 });
 
                 thisRef._autonomia.GetDevices(done, foundDevices);
             })
             .Then((done) => {
-                Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-                    "Devices Found:"
-                ));
+                var logLines = thisRef.state.Logs;
 
                 foundDevices.forEach((device) => {
-                    Logging.Console().Log(new Logging.LogEntity(Logging.LogType.Debug,
-                        "    Id: " + device.Id + ", Type: " + device.Type + ", IsConnected: " + device.IsConnected
-                    ));
+                    logLines.unshift({
+                        When: (new Date()).toLocaleString(),
+                        What: "Found -> " + device.Id
+                    });
                 });
 
-                // Pick One
-                foundDevices.forEach((device) => {
-                    if (device.Id === "70AFEE092C5E1") {
-                        thisRef._device = device;
-                    }
+                logLines.unshift({
+                    When: (new Date()).toLocaleString(),
+                    What: "GetNotificationsForDevices()"
                 });
 
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "GetNotificationsForDevices([" + JSON.stringify(thisRef._device.Id) + "])"
+                thisRef.setState({
+                    ...thisRef.state, 
+                    Devices: foundDevices,
+                    Logs: logLines
                 });
 
-                thisRef._autonomia.GetNotificationsForDevices([thisRef._device]);
+                thisRef._autonomia.GetNotificationsForDevices(foundDevices);
             })
             .OnError((error) => {
-                this.setState({
-                    ...this.state, 
-                    DeviceSetup: this.state.DeviceSetup + "\r\n" + (new Date()).toLocaleString() + " | " + "OnError()" + error
+                thisRef.setState({
+                    ...thisRef.state, 
+                    Logs: [{
+                        When: (new Date()).toLocaleString(),
+                        What: "OnError()" + error
+                    }].concat(thisRef.state.Logs)
                 });
-
-                Logging.Console().Log(new Logging.LogEntity(
-                    Logging.LogType.Error,
-                    error
-                ));
             });
     }
 
@@ -272,6 +326,46 @@ export default class Home extends React.Component {
             base0F: '#cc6633'
         };
 
+        var devices = [];
+        thisRef.state.Devices.forEach((device) => {
+            if (device.IsConnected) {
+                devices.push(
+                    <ListItem>
+                        <ListItemContent>
+                            <image src="images/online.png" class="status-icon" />
+                            <span>&nbsp;</span> Name: {device.Name}
+                            <span>&nbsp;</span> Id: {device.Id}
+                        </ListItemContent>
+                        <ListItemAction>
+                            <Button raised colored ripple onClick={() => {thisRef.ShowPropertiesForDevice(device.Id)}}>
+                                <Icon name="bug_report" />
+                                <span>&nbsp;</span>
+                                Show
+                            </Button>
+                        </ListItemAction>
+                    </ListItem>
+                );
+            }
+            else {
+                devices.push(
+                    <ListItem>
+                        <ListItemContent>
+                            <image src="images/offline.png" class="status-icon" />
+                            <span>&nbsp;</span> Name: {device.Name}
+                            <span>&nbsp;</span> Id: {device.Id}
+                        </ListItemContent>
+                        <ListItemAction>
+                            <Button raised colored ripple onClick={() => {thisRef.ShowPropertiesForDevice(device.Id)}}>
+                                <Icon name="bug_report" />
+                                <span>&nbsp;</span>
+                                Show
+                            </Button>
+                        </ListItemAction>
+                    </ListItem>
+                );                
+            }
+        });
+
         return (
             <Grid>
                 <Cell col={6} id={this._videoContanerId}>
@@ -282,37 +376,36 @@ export default class Home extends React.Component {
                                 width={this.state.VideoStreamWidth}
                                 height={this.state.VideoStreamHeight}
                                 rtmp={this.state.VideoStream} />
-                        </CardText>
-                    </Card>
-                    
-                    <br/>
-                    <Card shadow={6} style={{width: "100%"}}>
-                        <CardTitle>Setup</CardTitle>
-                        <CardText style={{fontSize: "1.3em", lineHeight: "1.3em"}}>
-                            <pre>{this.state.DeviceSetup}</pre>
+
+                            {/*<img src={this.state.LastPictureUrl} style={{width: "100px", height: "100px"}} />*/}
                         </CardText>
                     </Card>
 
                     <br/>
                     <Card shadow={6} style={{width: "100%"}}>
-                        <CardTitle>Status</CardTitle>
-                        <CardText style={{fontSize: "1.5em", lineHeight: "1.2em", color: "blue"}}>
-                            {this.state.DeviceStatus}
+                        <CardTitle>Registered Devices</CardTitle>
+                        <CardText style={{padding: "0", width: "100%", height: "300px",  overflowY: "scroll", fontSize: "1.3em", lineHeight: "1.3em"}}>
+                            <List>
+                                {devices}
+                            </List>
                         </CardText>
                     </Card>
 
                     <br/>
                     <Card shadow={6} style={{width: "100%"}}>
-                        <CardTitle>Errors</CardTitle>
-                        <CardText style={{fontSize: "1.5em", lineHeight: "1.2em", color: "red"}}>
-                            {this.state.DeviceErrors}
+                        <CardTitle>Logs</CardTitle>
+                        <CardText style={{padding: "0", width: "100%", height: "300px",  overflowY: "scroll", fontSize: "1.3em", lineHeight: "1.3em"}}>
+                            <DataTable shadow={0} style={{width: "100%", whiteSpace: "normal", wordWrap: "break-word"}} rows={this.state.Logs}>
+                                <TableHeader name="When" style={{display: "none"}}>When</TableHeader>
+                                <TableHeader name="What" style={{display: "none"}}>When</TableHeader>
+                            </DataTable>
                         </CardText>
                     </Card>
                 </Cell>
                 <Cell col={6}>
                     <Card shadow={6} style={{width: "100%", height: "100%"}}>
                         <CardTitle>
-                            Messages 
+                            Messages
                         </CardTitle>
                         <CardText>
                             <JSONTree 
@@ -329,10 +422,18 @@ export default class Home extends React.Component {
                         </CardText>
                         <CardActions border>
                             Updated &nbsp; @ &nbsp; {this.state.DeviceMessagesTimeStamp}
+                            <br />
+                            Device &nbsp; @ &nbsp; {this.ActiveDevice.Id}
                         </CardActions>
                     </Card>
                 </Cell>
             </Grid>
         )
+    }
+
+    componentWillUnmount() {
+        clearInterval(this._intervalId);
+
+        this._autonomia.StopAllDevicesNotifications();
     }
 }

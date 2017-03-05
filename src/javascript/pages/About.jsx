@@ -2,14 +2,6 @@
 import React from "react"
 import { Grid, Cell, Card, CardTitle, CardText, CardActions, CardMenu, Button, FABButton, Icon } from "react-mdl"
 
-const contentStyle = {
-    height: "500px",
-    width: "100%",
-    backgroundImage: "url('images/connect-small.jpg')", 
-    backgroundPosition: "center", 
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat"
-};
 
 export default class About extends React.Component {
 
@@ -27,6 +19,15 @@ export default class About extends React.Component {
     // ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~ ~~~~
 
     render() {
+        const contentStyle = {
+            height: "500px",
+            width: "100%",
+            backgroundImage: "url('images/connect-small.jpg')", 
+            backgroundPosition: "center", 
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat"
+        };
+
         return (
             <div>
                 <br/><br/><br/><br/><br/>

@@ -37,6 +37,7 @@ var Autonomia;
                 timeout_device_not_attached: 30000,
                 timeout_websocket_reconnect: 1000
             };
+            this._socketByDeviceId = {};
             this.Events = {
                 DeviceConnected: new Autonomia.Helpers.Events.Event(),
                 DeviceDisconnected: new Autonomia.Helpers.Events.Event(),
@@ -96,7 +97,7 @@ var Autonomia;
                         response.forEach(function (device) {
                             var d = new Autonomia.Models.Device();
                             d.Id = device.serial;
-                            d.Type = device.category.name;
+                            d.Type = Autonomia.Helpers.IsNullOrEmpty(device.category) ? "" : device.category.name;
                             d.IsConnected = device.connected;
                             d.ConnectedAt = device.connectedAt;
                             d.DisconnectedAt = device.disconnectedAt;
@@ -133,6 +134,19 @@ var Autonomia;
                     });
                 });
             });
+        };
+        Api.prototype.StopDevicesNotifications = function (deviceId) {
+            try {
+                this._socketByDeviceId[deviceId].close();
+            }
+            catch (e) {
+                console.error("StopDevicesNotifications() -> " + e);
+            }
+        };
+        Api.prototype.StopAllDevicesNotifications = function () {
+            for (var deviceId in this._socketByDeviceId) {
+                this.StopDevicesNotifications(deviceId);
+            }
         };
         Api.prototype.GetWebsocketUrlForDevice = function (deviceId, waitTimeOut, callback) {
             var thisRef = this;
@@ -175,6 +189,7 @@ var Autonomia;
             var thisRef = this;
             var webSocket = new WebSocket(url);
             webSocket.onopen = function (event) {
+                thisRef._socketByDeviceId[deviceId] = webSocket;
                 thisRef.Events.DeviceConnected.Notify(deviceId);
             };
             webSocket.onclose = function (event) {

@@ -14,6 +14,7 @@ const Header = () => (
             <a href="#Home">Home</a>
             <a href="#Config">Config</a>
             <a href="#About">About</a>
+            <a href="#VideoUrlTest">Test Video URL</a>
         </Navigation>
     </HeaderMdl>
 )
