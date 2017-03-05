@@ -1,5 +1,5 @@
 
-# ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_info_black_24px.svg) What
+# ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_info_outline_black_24px.svg) What
 Browser based client application to show how to use Autonomia
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_file_download_black_24px.svg) Run & Get Impressed
