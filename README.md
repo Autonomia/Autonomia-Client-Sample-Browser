@@ -1,12 +1,12 @@
 
-# ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_help_outline_black_24px.svg) What
-Browser based client application to show how to use Autnomia
+# ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_info_black_24px.svg) What
+Browser based client application to show how to use Autonomia
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_file_download_black_24px.svg) Run & Get Impressed
  - Save [this](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/v1.0/Autonomia-Client-Sample-Browser.zip)
 
  - Extract and execute "index.html"
- - If no prior config was specified then "Config" page will show-up to help fill-in the details recieved from the [Developer Portal](https://developer.autnomia.io)
+ - If no prior config was specified then "Config" page will show-up to help fill-in the details recieved from the [Developer Portal](https://developer.autonomia.io)
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_code_black_24px.svg) Develop
 - Run `npm install` once
