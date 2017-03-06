@@ -16,7 +16,7 @@ This sample is also useful in development for verification purposes.
 - Run `npm run build` to make a bundle
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_code_black_24px.svg) Code Example To Check
-![Here](src/javascript/pages/Home.jsx) `connectToAutonomia()`
+![Here](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/blob/master/src/javascript/pages/Home.jsx) `connectToAutonomia()`
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_image_black_24px.svg) How it looks like
 #### Home
