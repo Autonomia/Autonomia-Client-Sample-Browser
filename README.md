@@ -13,14 +13,14 @@ This sample is also useful in development for verification purposes.
 - `git clone https://github.com/Autonomia/Autonomia-Client-Sample-Browser.git`
 - Run `npm install` once
 - Run `npm run dev` while in dev cycle
-- run `npm run build` to make a bundle
+- Run `npm run build` to make a bundle
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_image_black_24px.svg) How it looks like
 #### Home
-![Home](screens/Home.png?raw=true "Home")
+![Home](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/Home.png)
 #### Config
-![Config](screens/Config.png?raw=true "Config")
+![Config](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/Config.png)
 #### Test Video URL
-![Test Video URL](screens/TestVideoUrl.png?raw=true "Test Video URL")
+![Test Video URL](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/TestVideoUrl.png)
 #### About
-![About](screens/About.png?raw=true "Config")
+![About](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/About.png)

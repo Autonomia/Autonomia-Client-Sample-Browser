@@ -1,9 +1,10 @@
 
-// React
+// React & Small libs
 import React from "react"
-import { connect } from "react-redux"
 import JSONTree from "react-json-tree"
 import { hashHistory } from "react-router"
+
+// React-MDL
 import { Grid, Cell,
     Card, CardTitle, CardText, CardActions, 
     List, ListItem, ListItemContent, ListItemAction,
@@ -11,9 +12,9 @@ import { Grid, Cell,
     Checkbox, Radio, Switch, IconButton, Button, Icon
 } from "react-mdl"
 
-
 // Autonomia
-let Logging = Autonomia.Helpers.Logging;
+let AutonomiaSdk = Autonomia.Client.Sdk;
+let AutonomiaLogging = AutonomiaSdk.Helpers.Logging;
 
 // App
 import VideoPlayer from "../components/VideoPlayer"
@@ -29,7 +30,7 @@ export default class Home extends React.Component {
 
         thisRef.state.Devices.forEach((device) => {
             if (device.Id === deviceId) {
-                thisRef.ActiveDevice = Autonomia.Helpers.CloneObject(device);
+                thisRef.ActiveDevice = AutonomiaSdk.Helpers.CloneObject(device);
             }
         });
 
@@ -67,7 +68,7 @@ export default class Home extends React.Component {
     DeviceConnected(deviceId) {
         var thisRef = this;
 
-        var devicesClone = Autonomia.Helpers.CloneObject(thisRef.state.Devices);
+        var devicesClone = AutonomiaSdk.Helpers.CloneObject(thisRef.state.Devices);
         devicesClone.forEach((device) => {
             if (device.Id === deviceId) {
                 device.IsConnected = true;
@@ -86,7 +87,7 @@ export default class Home extends React.Component {
     DeviceDisconnected(messageObject) {
         var thisRef = this;
 
-        var devicesClone = Autonomia.Helpers.CloneObject(thisRef.state.Devices);
+        var devicesClone = AutonomiaSdk.Helpers.CloneObject(thisRef.state.Devices);
         devicesClone.forEach((device) => {
             if (device.Id === messageObject.DeviceId) {
                 device.IsConnected = false;
@@ -146,13 +147,6 @@ export default class Home extends React.Component {
 
         var thisRef = this;
 
-        // this.logger = new CustomLogger((log, logEntity) => {
-        //     this.setState({
-        //         ...this.state, 
-        //         Log: this.state.Log + "\r\n" + (new Date()).toLocaleString() + " | " + logEntity.Type + log
-        //     });
-        // });
-
         this.state = {
             VideoStream: "",
             VideoStreamWidth: "100%",
@@ -179,18 +173,18 @@ export default class Home extends React.Component {
         var thisRef = this;
 
         var settingsContainer = {};
-        let settings = new Autonomia.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
+        let settings = new AutonomiaSdk.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
 
-        Autonomia.Helpers.Tasks.Run()
+        AutonomiaSdk.Helpers.Tasks.Run()
             .This((done) => {
                 settings.Read(settingsContainer, done);
             })
             .Then((done) => {
                 if (
-                    Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data)
-                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.AppKey)
-                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.AppSecret)
-                    || Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data.Server)
+                    AutonomiaSdk.Helpers.IsNullOrEmpty(settingsContainer.data)
+                    || AutonomiaSdk.Helpers.IsNullOrEmpty(settingsContainer.data.AppKey)
+                    || AutonomiaSdk.Helpers.IsNullOrEmpty(settingsContainer.data.AppSecret)
+                    || AutonomiaSdk.Helpers.IsNullOrEmpty(settingsContainer.data.Server)
                 ) {
                     setTimeout(() => {
                         done.abort();
@@ -208,7 +202,7 @@ export default class Home extends React.Component {
                 done();
             })
             .OnError((error) => {
-                thisRef.logger.Log(new Logging.LogEntity(
+                AutonomiaLogging.Console().Log(new Logging.LogEntity(
                     Logging.LogType.Error,
                     error
                 ));
@@ -218,15 +212,15 @@ export default class Home extends React.Component {
     connectToAutonomia(settings) {
         var thisRef = this;
 
-        this._videoContanerId = Autonomia.Helpers.NewGuid();
-        this._videoId = Autonomia.Helpers.NewGuid();
+        this._videoContanerId = AutonomiaSdk.Helpers.NewGuid();
+        this._videoId = AutonomiaSdk.Helpers.NewGuid();
 
-        this._autonomiaConfig = new Autonomia.Config();
+        this._autonomiaConfig = new AutonomiaSdk.Config();
         this._autonomiaConfig.AppKey = settings.AppKey;
         this._autonomiaConfig.AppSecret = settings.AppSecret;
         this._autonomiaConfig.Server = settings.Server;
 
-        this._autonomia = new Autonomia.Api(this._autonomiaConfig);
+        this._autonomia = new AutonomiaSdk.Client(this._autonomiaConfig);
 
         this._autonomia.Events.DeviceConnected.OnHappen((deviceId) => {
             thisRef.DeviceConnected(deviceId);
@@ -245,7 +239,7 @@ export default class Home extends React.Component {
         });
 
         var foundDevices = [];
-        Autonomia.Helpers.Tasks.Run()
+        AutonomiaSdk.Helpers.Tasks.Run()
             .This((done) => {
                 thisRef.setState({
                     ...thisRef.state, 

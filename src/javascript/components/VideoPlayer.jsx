@@ -1,14 +1,16 @@
 
 // React
 import React from "react"
-import uuid from "node-uuid"
+
+// Autonomia
+let AutonomiaSdk = Autonomia.Client.Sdk;
 
 export default class VideoPlayer extends React.Component {
 
     constructor() {
         super();
 
-        this._domId = uuid.v4();
+        this._domId = AutonomiaSdk.Helpers.NewGuid();
     }
 
     startVideoStreaming() {
