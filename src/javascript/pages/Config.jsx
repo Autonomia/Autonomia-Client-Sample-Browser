@@ -3,6 +3,9 @@ import React from "react"
 import { Grid, Cell, Card, CardTitle, CardText, CardActions, Button, Textfield, FABButton, Icon, ProgressBar } from "react-mdl"
 import { Globals } from "../components/Globals"
 
+let AutonomiaSdk = Autonomia.Client.Sdk;
+let AutonomiaLogging = AutonomiaSdk.Helpers.Logging;
+
 export default class Config extends React.Component {
     constructor() {
         super();
@@ -45,9 +48,9 @@ export default class Config extends React.Component {
         var thisRef = this;
 
         var settingsContainer = {};
-        let settings = new Autonomia.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
+        let settings = new AutonomiaSdk.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
 
-        Autonomia.Helpers.Tasks.Run()
+        AutonomiaSdk.Helpers.Tasks.Run()
             .This((done) => {
                 thisRef.setState({
                     ...thisRef.state,
@@ -163,14 +166,14 @@ export default class Config extends React.Component {
         var thisRef = this;
 
         var settingsContainer = {};
-        let settings = new Autonomia.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
+        let settings = new AutonomiaSdk.Helpers.Persisters.LocalStoragePersister(Globals.SettingsKey);
 
-        Autonomia.Helpers.Tasks.Run()
+        AutonomiaSdk.Helpers.Tasks.Run()
             .This((done) => {
                 settings.Read(settingsContainer, done);
             })
             .Then((done) => {
-                if (!Autonomia.Helpers.IsNullOrEmpty(settingsContainer.data)) {
+                if (!AutonomiaSdk.Helpers.IsNullOrEmpty(settingsContainer.data)) {
                     thisRef.setState(settingsContainer.data);
 
                     thisRef.stateMirror = {...thisRef.state};

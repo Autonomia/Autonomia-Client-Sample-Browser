@@ -428,6 +428,8 @@ export default class Home extends React.Component {
     componentWillUnmount() {
         clearInterval(this._intervalId);
 
-        this._autonomia.StopAllDevicesNotifications();
+        if (!AutonomiaSdk.Helpers.IsNullOrEmpty(this._autonomia)) {
+            this._autonomia.StopAllDevicesNotifications();
+        }
     }
 }

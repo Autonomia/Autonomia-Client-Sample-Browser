@@ -8,6 +8,9 @@ import { Grid, Cell,
     Checkbox, Radio, Switch, IconButton, Button, Icon, Textfield
 } from "react-mdl"
 
+let AutonomiaSdk = Autonomia.Client.Sdk;
+let AutonomiaLogging = AutonomiaSdk.Helpers.Logging;
+
 // App
 import VideoPlayer from "../components/VideoPlayer"
 
@@ -57,8 +60,8 @@ export default class VideoUrlTest extends React.Component {
         };
     
         this._intervalId = null;
-        this._videoContanerId = Autonomia.Helpers.NewGuid();
-        this._videoId = Autonomia.Helpers.NewGuid();
+        this._videoContanerId = AutonomiaSdk.Helpers.NewGuid();
+        this._videoId = AutonomiaSdk.Helpers.NewGuid();
     }
 
     render() {
