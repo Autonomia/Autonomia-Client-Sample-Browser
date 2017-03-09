@@ -20,10 +20,6 @@ This sample is also useful in development for verification purposes.
 
 # ![](https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_image_black_24px.svg) How it looks like
 #### Home
-![Home](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/Home.png)
 #### Config
-![Config](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/Config.png)
 #### Test Video URL
-![Test Video URL](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/TestVideoUrl.png)
 #### About
-![About](https://github.com/Autonomia/Autonomia-Client-Sample-Browser/releases/download/Screens/About.png)
