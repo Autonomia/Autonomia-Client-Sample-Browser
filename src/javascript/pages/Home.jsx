@@ -9,7 +9,8 @@ import { Grid, Cell,
     Card, CardTitle, CardText, CardActions, 
     List, ListItem, ListItemContent, ListItemAction,
     DataTable, TableHeader,
-    Checkbox, Radio, Switch, IconButton, Button, Icon
+    Checkbox, Radio, Switch, IconButton, Button, Icon,
+    Tabs, Tab
 } from "react-mdl"
 
 // Autonomia
@@ -59,6 +60,13 @@ export default class Home extends React.Component {
                 VideoStreamHeight: videoHeight + "px"
             });
         }, 1000);
+    }
+
+    RemoteExecuteCommand(deviceId) {
+        this._autonomia.Execute(deviceId, {
+            Method: "get_info",
+            Params: {}
+        });
     }
 
 
@@ -118,12 +126,22 @@ export default class Home extends React.Component {
     DeviceMessage(deviceId, message) {
         var thisRef = this;
 
-        if (thisRef.ActiveDevice.Id === deviceId) {
+        if (message.hasOwnProperty("jsonrpc")) {
+            console.log(JSON.stringify(message));
+
             this.setState({
-                ...this.state, 
-                DeviceMessages: message,
-                DeviceMessagesTimeStamp: (new Date()).toLocaleString()
+                ...thisRef.state, 
+                DeviceRpcResult: message.result
             });
+        }
+        else {
+            if (thisRef.ActiveDevice.Id === deviceId) {
+                this.setState({
+                    ...this.state, 
+                    DeviceMessages: message,
+                    DeviceMessagesTimeStamp: (new Date()).toLocaleString()
+                });
+            }
         }
     }
     DeviceInvalidMessage(data) {
@@ -160,7 +178,11 @@ export default class Home extends React.Component {
 
             DeviceMessagesTimeStamp: "",
 
-            Devices: []
+            Devices: [],
+
+            DeviceRpcResult: "",
+            
+            ActiveTab: 0
         };
 
         this._intervalId = null;
@@ -327,14 +349,22 @@ export default class Home extends React.Component {
                     <ListItem>
                         <ListItemContent>
                             <image src="images/online.png" class="status-icon" />
-                            <span>&nbsp;</span> Name: {device.Name}
-                            <span>&nbsp;</span> Id: {device.Id}
+                            <span>&nbsp;</span>
+                            {device.Id}
                         </ListItemContent>
                         <ListItemAction>
+                            <Button raised colored ripple onClick={() => {thisRef.RemoteExecuteCommand(device.Id)}}>
+                                <Icon name="flash_on" />
+                                <span>&nbsp;</span>
+                                R-Exec
+                            </Button>
+
+                            <span>&nbsp;</span><span>&nbsp;</span>
+
                             <Button raised colored ripple onClick={() => {thisRef.ShowPropertiesForDevice(device.Id)}}>
                                 <Icon name="bug_report" />
                                 <span>&nbsp;</span>
-                                Show
+                                Props
                             </Button>
                         </ListItemAction>
                     </ListItem>
@@ -345,20 +375,41 @@ export default class Home extends React.Component {
                     <ListItem>
                         <ListItemContent>
                             <image src="images/offline.png" class="status-icon" />
-                            <span>&nbsp;</span> Name: {device.Name}
-                            <span>&nbsp;</span> Id: {device.Id}
+                            <span>&nbsp;</span>
+                            {device.Id}
                         </ListItemContent>
                         <ListItemAction>
-                            <Button raised colored ripple onClick={() => {thisRef.ShowPropertiesForDevice(device.Id)}}>
-                                <Icon name="bug_report" />
-                                <span>&nbsp;</span>
-                                Show
-                            </Button>
                         </ListItemAction>
                     </ListItem>
                 );                
             }
         });
+
+        var activeTabContent = "";
+        if (this.state.ActiveTab === 0) {
+            activeTabContent =
+            <div>
+                Updated &nbsp; @ &nbsp; {this.state.DeviceMessagesTimeStamp}
+                <JSONTree 
+                    data={this.state.DeviceMessages} 
+                    theme={{
+                        extend: theme,
+                        valueLabel: {
+                            fontSize: "1.8em"
+                        },
+                        nestedNodeLabel: {
+                            fontSize: "1.8em"
+                        }   
+                    }}>
+                </JSONTree>
+            </div>
+        }
+        else if (this.state.ActiveTab === 1) {
+            activeTabContent =
+            <pre style={{width: "100%", height: "100%"}}>
+                {this.state.DeviceRpcResult}
+            </pre>
+        }
 
         return (
             <Grid>
@@ -398,27 +449,15 @@ export default class Home extends React.Component {
                 </Cell>
                 <Cell col={6}>
                     <Card shadow={6} style={{width: "100%", height: "100%"}}>
-                        <CardTitle>
-                            Messages
-                        </CardTitle>
                         <CardText>
-                            <JSONTree 
-                            data={this.state.DeviceMessages} 
-                            theme={{
-                                extend: theme,
-                                valueLabel: {
-                                    fontSize: "1.8em"
-                                },
-                                nestedNodeLabel: {
-                                     fontSize: "1.8em"
-                                }   
-                            }}></JSONTree>
+                            <Tabs activeTab={this.state.ActiveTab} onChange={(tabId) => this.setState({ ActiveTab: tabId })} ripple>
+                                <Tab>Messages &nbsp; @ &nbsp; {this.ActiveDevice.Id}</Tab>
+                                <Tab>RPC Result</Tab>
+                            </Tabs>
+                            <section>
+                                {activeTabContent}
+                            </section>
                         </CardText>
-                        <CardActions border>
-                            Updated &nbsp; @ &nbsp; {this.state.DeviceMessagesTimeStamp}
-                            <br />
-                            Device &nbsp; @ &nbsp; {this.ActiveDevice.Id}
-                        </CardActions>
                     </Card>
                 </Cell>
             </Grid>
